@@ -17,6 +17,12 @@ class ProductListViewController: UIViewController {
         configuration()
 
     }
+    
+    @IBAction func addProductButtonTapped(_ sender: UIBarButtonItem) {
+        
+         let product = AddProduct(title: "Iphone ")
+        viewModel.addProduct(parameter: product)
+    }
 }
 
 extension ProductListViewController {
@@ -29,6 +35,7 @@ extension ProductListViewController {
     
     func initViewModel() {
         viewModel.fetchProducts()
+        viewModel.fetchCarts()
     }
     
     //Data Binding
@@ -52,6 +59,8 @@ extension ProductListViewController {
                 }
             case .error(let error):
                 print(error)
+            case .newProductAdded(let newProduct):
+                print(newProduct)
             }
             
         }

@@ -10,6 +10,7 @@ import Foundation
 final class ProductViewModel {
     
     var products: [Product] = []
+    var carts: [WelcomeElement] = []
     
     var eventHandler: ((_ event: Event) -> Void)? // Data Binding closore
     
@@ -17,7 +18,7 @@ final class ProductViewModel {
         self.eventHandler?(.loading)
         APIManager.shared.request(
             modelType: [Product].self,
-            type: EndPointItems.products) { response in
+            type: ProductEndPoint.products) { response in
                     self.eventHandler?(.stopLoading)
                     switch response {
                     case .success(let products):
@@ -26,6 +27,35 @@ final class ProductViewModel {
                     case .failure(let error):
                         self.eventHandler?(.error(error))
                     }
+            }
+    }
+    
+    func fetchCarts() {
+        
+        APIManager.shared.request(
+            modelType: [WelcomeElement].self,
+            type: ProductEndPoint.carts) { response in
+                switch response {
+                case .success(let carts):
+                    self.carts = carts
+                    print(carts)
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        
+    }
+    
+    func addProduct(parameter: AddProduct) {
+        APIManager.shared.request(
+            modelType: AddProduct.self, // response type
+            type: ProductEndPoint.addProducts(produt: parameter)) { result in
+                switch result {
+                case .success(let product):
+                    self.eventHandler?(.newProductAdded(product: product))
+                case .failure(let error):
+                    self.eventHandler?(.error(error))
+                }
             }
     }
     
@@ -55,6 +85,7 @@ extension ProductViewModel {
         case stopLoading
         case dataLoaded
         case error(Error?)
+        case newProductAdded(product: AddProduct)
     }
     
 }
